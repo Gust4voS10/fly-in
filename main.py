@@ -1,30 +1,74 @@
-from core.graph import Graph
-from core.zone import Zone
-from core.connection import Connection
-from parser.parser import Parse
+from algorithms.dijkstra import Dijkstra
+from core.drone import Drone
+from parser.parser import Parser
+from simulation.scheduler import Scheduler
 
-#graph = Graph()
 
-#graph.add_zone(Zone("hub", 0, 0))
-#graph.add_zone(Zone("goal", 10, 10))
+def main() -> None:
 
-#graph.add_connection(Connection("hub", "goal"))
-
-#print(graph.adjacency)
-
-if __name__ == "__main__":
-    from algorithms.bfs import BFS
-    from parser.parser import Parse
-
-    parser = Parse("01_linear_path.txt")
+    parser = Parser("test.txt")
 
     graph = parser.parse()
 
-    bfs = BFS(graph)
+    dijkstra = Dijkstra(graph)
 
-    path = bfs.find_path(
-        graph.start_zone,
-        graph.end_zone
+    drones: list[Drone] = []
+
+    paths: dict[int, list[str]] = {}
+
+    for drone_id in range(1, parser.nb_drones + 1):
+
+        drone = Drone(
+            drone_id=drone_id,
+            current_zone=graph.start_zone
+        )
+
+        drones.append(drone)
+        path = dijkstra.find_path(
+            graph.start_zone,
+            graph.end_zone
+        )
+
+        if not path:
+            raise ValueError(
+                f"No path found for drone {drone_id}"
+            )
+
+        paths[drone_id] = path
+
+    print("\nPaths encontrados:")
+    print(
+        f"Drone {drone_id}: "
+        f"{' -> '.join(path)}"
     )
 
-    print(path)
+    scheduler = Scheduler(graph)
+
+    turn = 1
+
+    while not all(
+        drone.delivered
+        for drone in drones
+    ):
+
+        moves = scheduler.execute_turn(
+            drones,
+            paths
+        )
+
+        print(
+            f"\nTurn {turn}: "
+            + (
+                " ".join(moves)
+                if moves
+                else "(no moves)"
+            )
+        )
+
+        turn += 1
+
+    print("\nSimulation complete!")
+
+
+if __name__ == "__main__":
+    main()

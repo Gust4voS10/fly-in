@@ -11,10 +11,11 @@ VALID_ZONE_TYPES = {
     "priority"
 }
 
-class Parse:
+class Parser:
     def __init__(self, filename: str) -> None:
         self.filename = filename
         self.graph = Graph()
+        self.nb_drones = 1
     
     def parse(self) -> Graph:
         try:
@@ -106,7 +107,10 @@ class Parse:
 
         metadata = self._parse_metadata(metadata_string)
 
-        zone_type = metadata.get("zone_type", "normal")
+        zone_type = metadata.get(
+            "zone_type",
+            metadata.get("zone", metadata.get("type", "normal"))
+        )
 
         if zone_type not in VALID_ZONE_TYPES:
             raise ParserError(
@@ -114,7 +118,17 @@ class Parse:
             )
 
         try:
-            max_drones = int(metadata.get("max_drones", 1))
+            if zone_category in ("start", "end"):
+                max_drones = self.nb_drones
+            else:
+                max_value = (
+                    metadata.get("max_drones")
+                    or metadata.get("max-drones")
+                    or metadata.get("maxdrones")
+                    or metadata.get("maxDrone")
+                    or "1"
+                )
+                max_drones = int(max_value)
 
             if max_drones <= 0:
                 raise ParserError(

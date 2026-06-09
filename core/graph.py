@@ -8,6 +8,9 @@ class Graph:
         self.connections: list[Connection] = []
         self.adjacency: dict[str, list[str]] = {}
 
+        self.start_zone: str = ""
+        self.end_zone: str = ""
+
     def add_zone(self, zone: Zone) -> None:
         self.zones[zone.name] = zone
         self.adjacency[zone.name] = []
