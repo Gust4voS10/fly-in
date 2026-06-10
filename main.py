@@ -12,8 +12,17 @@ def main() -> None:
 
     dijkstra = Dijkstra(graph)
 
-    drones: list[Drone] = []
+    shared_path = dijkstra.find_path(
+        graph.start_zone,
+        graph.end_zone
+    )
 
+    if not shared_path:
+        raise ValueError(
+            "No path found from start to goal"
+        )
+
+    drones: list[Drone] = []
     paths: dict[int, list[str]] = {}
 
     for drone_id in range(1, parser.nb_drones + 1):
@@ -24,23 +33,11 @@ def main() -> None:
         )
 
         drones.append(drone)
-        path = dijkstra.find_path(
-            graph.start_zone,
-            graph.end_zone
-        )
 
-        if not path:
-            raise ValueError(
-                f"No path found for drone {drone_id}"
-            )
+        paths[drone_id] = shared_path.copy()
 
-        paths[drone_id] = path
-
-    print("\nPaths encontrados:")
-    print(
-        f"Drone {drone_id}: "
-        f"{' -> '.join(path)}"
-    )
+    print("\nChosen path:")
+    print(" -> ".join(shared_path))
 
     scheduler = Scheduler(graph)
 
@@ -68,6 +65,8 @@ def main() -> None:
         turn += 1
 
     print("\nSimulation complete!")
+    print(f"Total turns: {turn - 1}")
+    print(f"Delivered drones: {len(drones)}")
 
 
 if __name__ == "__main__":

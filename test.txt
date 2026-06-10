@@ -3,13 +3,6 @@ nb_drones: 1
 start_hub: hub 0 0
 end_hub: goal 10 10
 
-hub: A 1 1 [zone=restricted]
-hub: B 2 2
-hub: C 3 3
+hub: roof1 1 1
 
-connection: hub-A
-connection: A-goal
-
-connection: hub-B
-connection: B-C
-connection: C-goal
+connection: hub-roof1
