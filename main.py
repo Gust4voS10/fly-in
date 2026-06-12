@@ -2,6 +2,7 @@ from algorithms.dijkstra import Dijkstra
 from core.drone import Drone
 from parser.parser import Parser
 from simulation.scheduler import Scheduler
+from visualization.renderer import Renderer
 
 
 def main() -> None:
@@ -25,7 +26,10 @@ def main() -> None:
     drones: list[Drone] = []
     paths: dict[int, list[str]] = {}
 
-    for drone_id in range(1, parser.nb_drones + 1):
+    for drone_id in range(
+        1,
+        parser.nb_drones + 1
+    ):
 
         drone = Drone(
             drone_id=drone_id,
@@ -36,37 +40,14 @@ def main() -> None:
 
         paths[drone_id] = shared_path.copy()
 
-    print("\nChosen path:")
-    print(" -> ".join(shared_path))
-
     scheduler = Scheduler(graph)
 
-    turn = 1
+    renderer = Renderer(
+        graph,
+        drones
+    )
 
-    while not all(
-        drone.delivered
-        for drone in drones
-    ):
-
-        moves = scheduler.execute_turn(
-            drones,
-            paths
-        )
-
-        print(
-            f"\nTurn {turn}: "
-            + (
-                " ".join(moves)
-                if moves
-                else "(no moves)"
-            )
-        )
-
-        turn += 1
-
-    print("\nSimulation complete!")
-    print(f"Total turns: {turn - 1}")
-    print(f"Delivered drones: {len(drones)}")
+    renderer.run()
 
 
 if __name__ == "__main__":
