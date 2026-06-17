@@ -178,10 +178,12 @@ class Scheduler:
         occupied[next_zone] = (
             occupied.get(next_zone, 0) + 1
         )
-
         drone.current_zone = next_zone
-
         drone.path_index += 1
+
+        zone = self.graph.zones[next_zone]
+        drone.target_x = zone.x
+        drone.target_y = zone.y
 
     def _process_restricted(
         self,

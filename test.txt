@@ -4,6 +4,7 @@ start_hub: hub 0 0 [color=green]
 
 hub: roof1 2 -2 [color=blue]
 hub: roof2 2 2 [color=blue]
+hub: roof3 3 3 [color=green]
 
 hub: relay1 5 -2 [color=purple]
 hub: relay2 5 2 [color=purple]
@@ -16,7 +17,6 @@ connection: hub-roof2 [max_link_capacity=2]
 connection: roof1-relay1 [max_link_capacity=1]
 connection: roof2-relay2 [max_link_capacity=3]
 
-connection: relay1-goal [max_link_capacity=1]
 connection: relay2-goal [max_link_capacity=3]
 
 connection: relay1-relay2 [max_link_capacity=2]

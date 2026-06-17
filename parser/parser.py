@@ -11,12 +11,13 @@ VALID_ZONE_TYPES = {
     "priority"
 }
 
+
 class Parser:
     def __init__(self, filename: str) -> None:
         self.filename = filename
         self.graph = Graph()
         self.nb_drones = 1
-    
+
     def parse(self) -> Graph:
         try:
             with open(self.filename, "r", encoding="utf-8") as file:
@@ -28,7 +29,7 @@ class Parser:
             clean_line = line.strip()
             self._parse_line(clean_line, line_number)
         return self.graph
-    
+
     def _parse_line(self, line: str, line_number: int) -> None:
         if not line:
             return
@@ -49,7 +50,7 @@ class Parser:
             raise ParserError(
                 f"Line {line_number}: Invalid instruction"
                 f"{line}")
-    
+
     def _parse_nb_drones(self, line: str, line_number: int):
         try:
             value = line.replace("nb_drones:", "").strip()
@@ -66,7 +67,7 @@ class Parser:
             raise ParserError(
                 f"Line {line_number}: Invalid drone number"
             ) from error
-    
+
     def _parse_zone(self, line: str, line_number: int, zone_category: str):
         line = (
             line.replace("start_hub:", "")
@@ -158,7 +159,6 @@ class Parser:
         elif zone_category == "end":
             self.graph.end_zone = name
 
-
     def _parse_connection(
         self,
         line: str,
@@ -238,7 +238,6 @@ class Parser:
         )
 
         self.graph.add_connection(connection)
-    
 
     def _parse_metadata(
         self,

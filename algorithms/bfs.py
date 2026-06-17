@@ -32,7 +32,7 @@ class BFS:
             start,
             end
         )
-    
+
     def _build_path(
         self,
         previous: dict[str, str | None],

@@ -14,7 +14,7 @@ class Graph:
     def add_zone(self, zone: Zone) -> None:
         self.zones[zone.name] = zone
         self.adjacency[zone.name] = []
-    
+
     def add_connection(self, connection: Connection) -> None:
         self.connections.append(connection)
         self.adjacency[connection.zone1].append(connection.zone2)

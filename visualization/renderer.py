@@ -1,17 +1,19 @@
 import pygame
 from core.graph import Graph
 from core.drone import Drone
+from simulation.scheduler import Scheduler
 
 
 class Renderer:
     def __init__(
         self,
         graph: Graph,
-        drone: Drone
+        drones: Drone
     ) -> None:
 
         self.graph = graph
-        self.drones = drone
+        self.drones = drones
+        self.turn = 0
 
         pygame.init()
 
@@ -67,11 +69,11 @@ class Renderer:
 
     def _count_drones_per_zone(self) -> dict[str, int]:
         counts: dict[str, int] = {}
-        for drone in self.drones:
+        for drones in self.drones:
 
-            counts[drone.current_zone] = (
+            counts[drones.current_zone] = (
                 counts.get(
-                    drone.current_zone,
+                    drones.current_zone,
                     0
                 ) + 1
             )
@@ -126,15 +128,15 @@ class Renderer:
                 )
 
     def _draw_drones(self) -> None:
-        for drone in self.drones:
+        for drones in self.drones:
 
-            zone = self.graph.zones[
-                drone.current_zone
-            ]
+            #  zone = self.graph.zones[
+            #     drones.current_zone
+            #  ]
 
             x, y = self._to_screen_position(
-                zone.x,
-                zone.y
+                drones.visual_x,
+                drones.visual_y
             )
 
             self.screen.blit(
@@ -174,28 +176,62 @@ class Renderer:
                 4
             )
 
-    def run(self) -> None:
+    def _draw_turn_counter(self) -> None:
+        text = self.font.render(
+            f"Turn: {self.turn}",
+            True,
+            (255, 255, 255)
+        )
+        self.screen.blit(
+            text,
+            (20, 20)
+        )
 
+    def draw(self) -> None:
+
+        self.screen.fill(
+            (30, 30, 30)
+        )
+        self._draw_connections()
+        self._draw_zones()
+        self._draw_drones()
+        self._draw_turn_counter()
+
+    def run(self,
+            scheuduler: Scheduler,
+            paths: dict[int, list[str]]
+            ) -> None:
         running = True
-
+        last_update = pygame.time.get_ticks()
         while running:
-
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     running = False
 
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
+                if (
+                    event.type == pygame.KEYDOWN and
+                    event.key == pygame.K_ESCAPE
+                ):
+                    running = False
+            current_time = pygame.time.get_ticks()
+            if current_time - last_update >= 1000:
+                if not all(
+                    drone.delivered
+                    for drone in self.drones
+                ):
+                    scheuduler.execute_turn(self.drones,
+                                            paths)
+                    self.turn += 1
+                last_update = current_time
 
-            self.screen.fill((30, 30, 30))
-            self._draw_connections()
-            self._draw_zones()
-            self._draw_drones()
-
+            for drone in self.drones:
+                drone.visual_x += (
+                    drone.target_x - drone.visual_x
+                ) * 0.1
+                drone.visual_y += (
+                    drone.target_y - drone.visual_y
+                ) * 0.1
+            self.draw()
             pygame.display.flip()
-
             self.clock.tick(60)
-
         pygame.quit()

@@ -36,6 +36,12 @@ def main() -> None:
             current_zone=graph.start_zone
         )
 
+        start_zone = graph.zones[graph.start_zone]
+        drone.visual_x = start_zone.x
+        drone.visual_y = start_zone.y
+        drone.target_x = start_zone.x
+        drone.target_y = start_zone.y
+
         drones.append(drone)
 
         paths[drone_id] = shared_path.copy()
@@ -46,8 +52,7 @@ def main() -> None:
         graph,
         drones
     )
-
-    renderer.run()
+    renderer.run(scheduler, paths)
 
 
 if __name__ == "__main__":
