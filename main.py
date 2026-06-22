@@ -13,23 +13,23 @@ def main() -> None:
 
     dijkstra = Dijkstra(graph)
 
-    shared_path = dijkstra.find_path(
-        graph.start_zone,
-        graph.end_zone
-    )
-
-    if not shared_path:
-        raise ValueError(
-            "No path found from start to goal"
-        )
-
     drones: list[Drone] = []
     paths: dict[int, list[str]] = {}
+
+    predicted_usage: dict[str, int] = {}
 
     for drone_id in range(
         1,
         parser.nb_drones + 1
     ):
+        path = dijkstra.find_path(
+            graph.start_zone,
+            graph.end_zone,
+            predicted_usage
+        )
+
+        if not path:
+            raise ValueError("No path found from start to goal")
 
         drone = Drone(
             drone_id=drone_id,
@@ -44,7 +44,12 @@ def main() -> None:
 
         drones.append(drone)
 
-        paths[drone_id] = shared_path.copy()
+        paths[drone_id] = path
+
+        for zone in path:
+            predicted_usage[zone] = (
+                predicted_usage.get(zone, 0) + 1
+            )
 
     scheduler = Scheduler(graph)
 
