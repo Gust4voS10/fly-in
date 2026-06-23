@@ -24,6 +24,39 @@ class Renderer:
 
         self.screen = pygame.display.set_mode(
             (self.width, self.height))
+        
+        self.background = pygame.image.load(
+            "visualization/assets/Deus.jpg"
+        ).convert()
+
+        self.blocked_image = pygame.image.load(
+            "visualization/assets/placa_1.png"
+        ).convert_alpha()
+
+        self.blocked_image = pygame.transform.scale(
+            self.blocked_image,
+            (50, 50)
+        )
+
+        self.priority_image = pygame.image.load(
+            "visualization/assets/placa_2.png"
+            ).convert_alpha()
+        
+        self.priority_image = pygame.transform.scale(self.priority_image,
+                                                     (40, 35))
+
+        self.restricted_image = pygame.image.load(
+            "visualization/assets/placa_3.png"
+            ).convert_alpha()
+
+        self.restricted_image = pygame.transform.scale(
+            self.restricted_image,
+            (60, 60))
+
+        self.background = pygame.transform.scale(
+            self.background,
+            (self.width, self.height)
+)
 
         self.drone_image = pygame.image.load(
             "visualization/assets/drone.png").convert_alpha()
@@ -95,6 +128,51 @@ class Renderer:
                 color,
                 (x, y),
                 25)
+            
+            if zone.zone_type == "blocked":
+                self.screen.blit(
+                    self.blocked_image,
+                    (
+                        x - self.blocked_image.get_width() // 2,
+                        y - self.blocked_image.get_height() // 2
+                    )
+                )
+
+            if zone.zone_type == "restricted":
+                self.screen.blit(
+                    self.restricted_image,
+                    (
+                        x - self.restricted_image.get_width() // 2,
+                        y - self.restricted_image.get_height() // 2
+                    )
+                )
+
+            if zone.zone_type == "priority":
+                self.screen.blit(
+                    self.priority_image,
+                    (
+                        x - self.priority_image.get_width() // 2,
+                        y - self.priority_image.get_height() // 2
+                    )
+                )
+            
+            if zone.zone_type == "":
+                self.screen.blit(
+                    self.blocked_image,
+                    (
+                        x - self.blocked_image.get_width() // 2,
+                        y - self.blocked_image.get_height() // 2
+                    )
+                )
+
+            if zone.zone_type == "blocked":
+                self.screen.blit(
+                    self.blocked_image,
+                    (
+                        x - self.blocked_image.get_width() // 2,
+                        y - self.blocked_image.get_height() // 2
+                    )
+                )
 
             text = self.font.render(
                 zone.name,
@@ -189,8 +267,9 @@ class Renderer:
 
     def draw(self) -> None:
 
-        self.screen.fill(
-            (30, 30, 30)
+        self.screen.blit(
+        self.background,
+        (0, 0)
         )
         self._draw_connections()
         self._draw_zones()

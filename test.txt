@@ -2,9 +2,9 @@ nb_drones: 5
 
 start_hub: hub 0 0 [color=green]
 
-hub: roof1 2 -2 [color=blue]
-hub: roof2 2 2 [color=blue]
-hub: roof3 3 3 [color=green]
+hub: roof1 2 -2 [zone=priority color=blue]
+hub: roof2 2 2 [zone=restricted color=blue]
+hub: roof3 3 3 [zone=blocked color=green]
 
 hub: relay1 5 -2 [color=purple]
 hub: relay2 5 2 [color=purple max_drones=2]
