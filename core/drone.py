@@ -12,3 +12,4 @@ class Drone:
     path_index: int = 0
     delivered: bool = False
     remaining_turns: int = 0
+    reverse_mode: bool = False

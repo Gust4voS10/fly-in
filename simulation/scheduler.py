@@ -77,10 +77,16 @@ class Scheduler:
         path: list[str]
     ) -> str | None:
 
-        if drone.path_index >= len(path) - 1:
+        if not drone.reverse_mode:
+            if drone.path_index >= len(path) - 1:
+                return None
+
+            return path[drone.path_index + 1]
+
+        if drone.path_index <= 0:
             return None
 
-        return path[drone.path_index + 1]
+        return path[drone.path_index - 1]
 
     def _is_zone_available(
         self,
@@ -108,8 +114,8 @@ class Scheduler:
             )
 
             reverse = (
-                connection.zone1 == from_zone
-                and connection.zone2 == to_zone
+                connection.zone1 == to_zone
+                and connection.zone2 == from_zone
             )
 
             if direct or reverse:
@@ -179,7 +185,10 @@ class Scheduler:
             occupied.get(next_zone, 0) + 1
         )
         drone.current_zone = next_zone
-        drone.path_index += 1
+        if drone.reverse_mode:
+            drone.path_index -= 1
+        else:
+            drone.path_index += 1
 
         zone = self.graph.zones[next_zone]
         drone.target_x = zone.x
@@ -202,8 +211,15 @@ class Scheduler:
         path: list[str]
     ) -> None:
 
-        if drone.path_index >= len(path) - 1:
+        if not drone.reverse_mode:
+            if drone.path_index >= len(path) - 1:
+                drone.delivered = True
+                drone.reverse_mode = False
+            return
+
+        if drone.path_index <= 0:
             drone.delivered = True
+            drone.reverse_mode = False
 
     def _try_move_drone(
         self,

@@ -3,11 +3,48 @@ from core.drone import Drone
 from parser.parser import Parser
 from simulation.scheduler import Scheduler
 from visualization.renderer import Renderer
+import os
+from pathlib import Path
+
+
+def select_map() -> str:
+    maps_dir = Path("maps")
+    map_files = []
+
+    if maps_dir.exists():
+        for txt_file in sorted(maps_dir.rglob("*.txt")):
+            map_files.append(str(txt_file))
+
+    if Path("test.txt").exists():
+        map_files.insert(0, "test.txt")
+
+    if not map_files:
+        print("Nenhum mapa encontrado!")
+        return "test.txt"
+
+    print("\n=== MAPAS DISPONÍVEIS ===\n")
+    for idx, map_file in enumerate(map_files, 1):
+        print(f"{idx}. {map_file}")
+
+    while True:
+        try:
+            choice = input("\nEscolha um mapa (número): ").strip()
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(map_files):
+                selected = map_files[choice_num - 1]
+                print(f"\nMapa selecionado: {selected}\n")
+                return selected
+            else:
+                print(f"Por favor, escolha um "
+                      f"número entre 1 e {len(map_files)}")
+        except ValueError:
+            print("Entrada inválida! Digite um número.")
 
 
 def main() -> None:
 
-    parser = Parser("test.txt")
+    map_file = select_map()
+    parser = Parser(map_file)
 
     graph = parser.parse()
 

@@ -107,7 +107,7 @@ class Dijkstra:
 
                 traffic_penalty = self._traffic_penalty(
                     neighbor, predicted_usage)
-                
+
                 connection_penalty = self._connection_penalty(
                     current_zone, neighbor
                 )

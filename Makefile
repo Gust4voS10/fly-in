@@ -1,15 +1,25 @@
+.PHONY: install run debug clean lint lint-strict
+
 install:
-	pip install -r requirements.txt
+	python -m pip install -r requirements.txt
 
 run:
-	python3 main.py
+	python main.py
 
 debug:
-	python3 -m pdb main.py
+	python -m pdb main.py
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	rm -rf .mypy_cache .pytest_cache
+	python - <<'PY'
+import os
+import shutil
+for root, dirs, files in os.walk('.', topdown=False):
+    for d in dirs:
+        if d == '__pycache__':
+            shutil.rmtree(os.path.join(root, d), ignore_errors=True)
+shutil.rmtree('.mypy_cache', ignore_errors=True)
+shutil.rmtree('.pytest_cache', ignore_errors=True)
+PY
 
 lint:
 	flake8 .
