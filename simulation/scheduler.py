@@ -67,6 +67,9 @@ class Scheduler:
 
             drone.remaining_turns -= 1
 
+            if drone.remaining_turns == 0:
+                self._set_visual_target_to_current_zone(drone)
+
             return True
 
         return False
@@ -167,6 +170,32 @@ class Scheduler:
             link_usage.get(key, 0) + 1
         )
 
+    def _set_visual_target_to_current_zone(
+        self,
+        drone: Drone
+    ) -> None:
+
+        zone = self.graph.zones[drone.current_zone]
+        drone.target_x = zone.x
+        drone.target_y = zone.y
+
+    def _set_visual_target_to_midpoint(
+        self,
+        drone: Drone,
+        from_zone: str,
+        to_zone: str
+    ) -> None:
+
+        from_zone_data = self.graph.zones[from_zone]
+        to_zone_data = self.graph.zones[to_zone]
+
+        drone.target_x = (
+            from_zone_data.x + to_zone_data.x
+        ) / 2
+        drone.target_y = (
+            from_zone_data.y + to_zone_data.y
+        ) / 2
+
     def _move_drone(
         self,
         drone: Drone,
@@ -191,8 +220,15 @@ class Scheduler:
             drone.path_index += 1
 
         zone = self.graph.zones[next_zone]
-        drone.target_x = zone.x
-        drone.target_y = zone.y
+        if zone.zone_type == "restricted":
+            self._set_visual_target_to_midpoint(
+                drone,
+                old_zone,
+                next_zone
+            )
+        else:
+            drone.target_x = zone.x
+            drone.target_y = zone.y
 
     def _process_restricted(
         self,
