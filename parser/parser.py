@@ -92,7 +92,7 @@ class Parser:
                 f"Line {line_number}: Invalid instruction"
                 f"{line}")
 
-    def _parse_nb_drones(self, line: str, line_number: int):
+    def _parse_nb_drones(self, line: str, line_number: int) -> None:
         """Parse the ``nb_drones:`` instruction.
 
         Args:
@@ -119,7 +119,12 @@ class Parser:
                 f"Line {line_number}: Invalid drone number"
             ) from error
 
-    def _parse_zone(self, line: str, line_number: int, zone_category: str):
+    def _parse_zone(
+        self,
+        line: str,
+        line_number: int,
+        zone_category: str
+    ) -> None:
         """Parse a ``start_hub:``, ``end_hub:`` or ``hub:`` instruction.
 
         Args:

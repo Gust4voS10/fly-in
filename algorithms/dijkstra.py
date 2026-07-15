@@ -101,7 +101,7 @@ class Dijkstra:
         self,
         start: str,
         end: str,
-        predicted_usage: dict[str, int]
+        predicted_usage: dict[str, int] | None
     ) -> list[str]:
         """Find the lowest-cost path between two zones.
 

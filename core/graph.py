@@ -1,5 +1,3 @@
-"""Graph data model tying zones and connections together."""
-
 from .zone import Zone
 from .connection import Connection
 

@@ -7,6 +7,7 @@ bottlenecks, and pausing drones for one extra turn when they enter
 ``restricted`` zones.
 """
 
+from core.connection import Connection
 from core.drone import Drone
 from core.graph import Graph
 
@@ -181,7 +182,7 @@ class Scheduler:
         self,
         from_zone: str,
         to_zone: str
-    ):
+    ) -> Connection | None:
         """Find the connection object linking two zones, if any.
 
         Args:

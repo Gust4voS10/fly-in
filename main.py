@@ -13,7 +13,6 @@ from core.drone import Drone
 from parser.parser import Parser
 from simulation.scheduler import Scheduler
 from visualization.renderer import Renderer
-import os
 from pathlib import Path
 
 

@@ -175,7 +175,7 @@ class Renderer:
                 return False
         return True
 
-    def _get_zone_color(self, color_name: str):
+    def _get_zone_color(self, color_name: str) -> tuple[int, int, int]:
         """Translate a zone's color name into an RGB tuple.
 
         Args:
@@ -374,7 +374,7 @@ class Renderer:
 
     def _decrease_speed(self) -> None:
         """Decrease the animation speed factor, floored at 0.1."""
-        if self.porcent > 0.20:
+        if self.porcent > 0.1:
             self.porcent -= 0.1
 
     def _draw_info_panel(self) -> None:
@@ -494,7 +494,7 @@ class Renderer:
         )
 
     def _set_reverse_mode(self) -> None:
-        """Switch every drone into reverse mode and restart the turn counter."""
+        """Switch every drone to reverse mode, resetting the turn counter."""
         for drone in self.drones:
             drone.delivered = False
             drone.reverse_mode = True
