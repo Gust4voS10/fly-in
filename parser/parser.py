@@ -1,3 +1,12 @@
+"""Map file parser.
+
+This module reads the custom map description language used by the project
+(``nb_drones``, ``start_hub``, ``end_hub``, ``hub`` and ``connection``
+lines, with optional ``[key=value]`` metadata) and turns it into a
+:class:`core.graph.Graph` populated with :class:`core.zone.Zone` and
+:class:`core.connection.Connection` objects.
+"""
+
 from core.graph import Graph
 from .exceptions import ParserError
 from core.zone import Zone
@@ -13,12 +22,35 @@ VALID_ZONE_TYPES = {
 
 
 class Parser:
+    """Parses a map file into a :class:`core.graph.Graph`.
+
+    Attributes:
+        filename: Path to the map file to parse.
+        graph: The graph being built while parsing.
+        nb_drones: Number of drones declared by the ``nb_drones`` line
+            (defaults to 1 if never set).
+    """
+
     def __init__(self, filename: str) -> None:
+        """Initialize the parser for a given map file.
+
+        Args:
+            filename: Path to the map file to parse.
+        """
         self.filename = filename
         self.graph = Graph()
         self.nb_drones = 1
 
     def parse(self) -> Graph:
+        """Read the map file and build the corresponding graph.
+
+        Returns:
+            The populated :class:`core.graph.Graph` instance.
+
+        Raises:
+            ParserError: If the file cannot be found or contains invalid
+                instructions.
+        """
         try:
             with open(self.filename, "r", encoding="utf-8") as file:
                 lines = file.readlines()
@@ -31,6 +63,15 @@ class Parser:
         return self.graph
 
     def _parse_line(self, line: str, line_number: int) -> None:
+        """Dispatch a single line to the appropriate parsing routine.
+
+        Args:
+            line: The stripped line content.
+            line_number: 1-indexed line number, used for error reporting.
+
+        Raises:
+            ParserError: If the line does not match any known instruction.
+        """
         if not line:
             return
         if line.startswith("#"):
@@ -52,6 +93,16 @@ class Parser:
                 f"{line}")
 
     def _parse_nb_drones(self, line: str, line_number: int):
+        """Parse the ``nb_drones:`` instruction.
+
+        Args:
+            line: The raw line containing the instruction.
+            line_number: 1-indexed line number, used for error reporting.
+
+        Raises:
+            ParserError: If the value is missing, not an integer, or not
+                strictly positive.
+        """
         try:
             value = line.replace("nb_drones:", "").strip()
 
@@ -69,6 +120,19 @@ class Parser:
             ) from error
 
     def _parse_zone(self, line: str, line_number: int, zone_category: str):
+        """Parse a ``start_hub:``, ``end_hub:`` or ``hub:`` instruction.
+
+        Args:
+            line: The raw line containing the instruction.
+            line_number: 1-indexed line number, used for error reporting.
+            zone_category: One of ``"start"``, ``"end"`` or ``"hub"``,
+                indicating which kind of zone is being declared.
+
+        Raises:
+            ParserError: If the zone definition is malformed, the
+                coordinates are invalid, the name is invalid/duplicated,
+                the zone type is unknown, or ``max_drones`` is invalid.
+        """
         line = (
             line.replace("start_hub:", "")
             .replace("end_hub:", "")
@@ -164,6 +228,17 @@ class Parser:
         line: str,
         line_number: int
     ) -> None:
+        """Parse a ``connection:`` instruction.
+
+        Args:
+            line: The raw line containing the instruction.
+            line_number: 1-indexed line number, used for error reporting.
+
+        Raises:
+            ParserError: If the connection format is invalid, references
+                an unknown zone, has an invalid ``max_link_capacity``, or
+                duplicates an existing connection (in either direction).
+        """
 
         line = line.replace("connection:", "").strip()
 
@@ -243,6 +318,21 @@ class Parser:
         self,
         metadata_string: str
     ) -> dict[str, str]:
+        """Parse a ``[key=value key2=value2 ...]`` metadata block.
+
+        Args:
+            metadata_string: The raw metadata substring, including the
+                surrounding square brackets, or an empty string if no
+                metadata is present.
+
+        Returns:
+            A dictionary mapping metadata keys to their raw string values.
+            Empty if ``metadata_string`` is empty.
+
+        Raises:
+            ParserError: If the metadata block is not wrapped in square
+                brackets, or an item does not contain an ``=`` sign.
+        """
 
         metadata: dict[str, str] = {}
 
@@ -278,6 +368,12 @@ class Parser:
         return metadata
 
     def _validate_required_data(self) -> None:
+        """Validate that mandatory map data has been provided.
+
+        Raises:
+            ParserError: If ``nb_drones`` is missing/invalid, or if no
+                ``start_hub``/``end_hub`` was declared.
+        """
 
         if self.nb_drones <= 0:
             raise ParserError(

@@ -1,15 +1,38 @@
+"""Traffic-aware Dijkstra pathfinding.
+
+This module implements a variant of Dijkstra's algorithm whose edge weight
+combines the destination zone's traversal cost, a traffic penalty derived
+from the fleet's predicted zone usage, and a penalty for low-capacity
+connections. This makes the algorithm prefer ``priority`` zones, avoid
+``restricted``/congested zones when possible, and naturally spread drones
+across alternative routes.
+"""
+
 import heapq
 
 from core.graph import Graph
 
 
 class Dijkstra:
+    """Computes shortest, traffic-aware paths over a :class:`Graph`."""
+
     def __init__(self, graph: Graph) -> None:
+        """Initialize the algorithm for a given graph.
+
+        Args:
+            graph: The graph to run pathfinding on.
+        """
         self.graph = graph
 
     def _zone_cost(self, zone_name: str) -> float:
-        """
-        Returns the traversal cost of a zone.
+        """Return the base traversal cost of entering a zone.
+
+        Args:
+            zone_name: Name of the zone being entered.
+
+        Returns:
+            ``0.5`` for ``priority`` zones, ``2`` for ``restricted`` zones,
+            and ``1`` for any other zone type.
         """
 
         zone = self.graph.zones[zone_name]
@@ -27,6 +50,17 @@ class Dijkstra:
         zone_name: str,
         predicted_usage: dict[str, int]
     ) -> float:
+        """Return an extra cost proportional to a zone's predicted usage.
+
+        Args:
+            zone_name: Name of the zone being entered.
+            predicted_usage: Mapping of zone name to the number of drones
+                already expected to pass through it.
+
+        Returns:
+            ``predicted_usage[zone_name] * 2``, or ``0`` if the zone has no
+            recorded usage yet.
+        """
 
         return predicted_usage.get(
             zone_name,
@@ -38,6 +72,16 @@ class Dijkstra:
             from_zone: str,
             to_zone: str
             ) -> float:
+        """Return an extra cost for crossing a low-capacity connection.
+
+        Args:
+            from_zone: Name of the zone being left.
+            to_zone: Name of the zone being entered.
+
+        Returns:
+            ``1 / max_link_capacity`` of the connection between the two
+            zones, or ``0`` if no such connection exists.
+        """
 
         for connection in self.graph.connections:
 
@@ -59,8 +103,22 @@ class Dijkstra:
         end: str,
         predicted_usage: dict[str, int]
     ) -> list[str]:
-        """
-        Finds the lowest-cost path using Dijkstra.
+        """Find the lowest-cost path between two zones.
+
+        Runs Dijkstra's algorithm using a combined weight of zone cost,
+        traffic penalty, and connection penalty for every edge. ``blocked``
+        zones are never expanded into.
+
+        Args:
+            start: Name of the starting zone.
+            end: Name of the destination zone.
+            predicted_usage: Mapping of zone name to the number of drones
+                already expected to pass through it, used to penalize
+                congested zones. May be ``None``, treated as empty.
+
+        Returns:
+            The list of zone names forming the path from ``start`` to
+            ``end`` (inclusive), or an empty list if no path exists.
         """
 
         if predicted_usage is None:
@@ -142,8 +200,16 @@ class Dijkstra:
         previous: dict[str, str | None],
         end: str
     ) -> list[str]:
-        """
-        Reconstructs the path from the previous dictionary.
+        """Reconstruct a path from Dijkstra's ``previous`` mapping.
+
+        Args:
+            previous: Mapping of zone name to the zone it was reached
+                from, as built by :meth:`find_path`.
+            end: Name of the destination zone to trace back from.
+
+        Returns:
+            The list of zone names forming the path, in order from the
+            start to ``end``.
         """
 
         path: list[str] = []

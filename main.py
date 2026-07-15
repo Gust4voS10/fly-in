@@ -1,3 +1,13 @@
+"""Entry point: pick a map, compute drone paths, and run the simulation.
+
+Lists every ``.txt`` map found under ``maps/`` (plus ``test.txt`` at the
+repository root if present), lets the user pick one interactively, parses
+it into a graph, computes a Dijkstra path for every drone (updating a
+predicted-usage map incrementally to spread the fleet across alternative
+routes), and finally launches the ``pygame`` renderer to simulate and
+visualize the fleet's movement.
+"""
+
 from algorithms.dijkstra import Dijkstra
 from core.drone import Drone
 from parser.parser import Parser
@@ -8,6 +18,16 @@ from pathlib import Path
 
 
 def select_map() -> str:
+    """Interactively prompt the user to choose a map file.
+
+    Scans ``maps/`` recursively for ``.txt`` files (sorted alphabetically)
+    and includes ``test.txt`` from the repository root first, if present.
+    Prints the list and repeatedly prompts until a valid choice is made.
+
+    Returns:
+        The path of the selected map file. Falls back to ``"test.txt"``
+        if no map files are found at all.
+    """
     maps_dir = Path("maps")
     map_files = []
 
@@ -42,6 +62,12 @@ def select_map() -> str:
 
 
 def main() -> None:
+    """Parse a map, compute paths for every drone, and run the simulation.
+
+    Raises:
+        ValueError: If no valid path can be found from the start zone to
+            the end zone for any drone.
+    """
 
     map_file = select_map()
     parser = Parser(map_file)

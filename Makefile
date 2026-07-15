@@ -10,16 +10,8 @@ debug:
 	python -m pdb main.py
 
 clean:
-	python - <<'PY'
-import os
-import shutil
-for root, dirs, files in os.walk('.', topdown=False):
-    for d in dirs:
-        if d == '__pycache__':
-            shutil.rmtree(os.path.join(root, d), ignore_errors=True)
-shutil.rmtree('.mypy_cache', ignore_errors=True)
-shutil.rmtree('.pytest_cache', ignore_errors=True)
-PY
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 
 lint:
 	flake8 .
