@@ -18,7 +18,7 @@ class Renderer:
     def __init__(
         self,
         graph: Graph,
-        drones: Drone
+        drones: list[Drone]
     ) -> None:
         """Initialize pygame, load assets, and compute the map scale.
 
@@ -33,6 +33,7 @@ class Renderer:
         self.started = False
         self.porcent = 0.10
         self.zoom = 1.0
+        self.base_scale: float = 80.0
 
         pygame.init()
 
@@ -132,9 +133,9 @@ class Renderer:
 
     def _to_screen_position(
         self,
-        x: int,
-        y: int
-    ) -> tuple[int, int]:
+        x: float,
+        y: float
+    ) -> tuple[float, float]:
         """Convert map coordinates to screen pixel coordinates.
 
         Args:
@@ -154,7 +155,7 @@ class Renderer:
 
         return screen_x, screen_y
 
-    def _should_draw_label(self, x: int, y: int) -> bool:
+    def _should_draw_label(self, x: float, y: float) -> bool:
         """Decide whether a zone label would overlap a nearby zone.
 
         Args:

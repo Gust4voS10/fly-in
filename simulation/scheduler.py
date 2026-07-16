@@ -239,8 +239,10 @@ class Scheduler:
         if connection is None:
             return False
 
-        key = tuple(
-            sorted([from_zone, to_zone])
+        key = (
+            (from_zone, to_zone)
+            if from_zone <= to_zone
+            else (to_zone, from_zone)
         )
 
         current_usage = link_usage.get(
@@ -268,8 +270,10 @@ class Scheduler:
                 count this turn, updated in place.
         """
 
-        key = tuple(
-            sorted([from_zone, to_zone])
+        key = (
+            (from_zone, to_zone)
+            if from_zone <= to_zone
+            else (to_zone, from_zone)
         )
 
         link_usage[key] = (

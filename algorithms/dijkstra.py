@@ -214,7 +214,7 @@ class Dijkstra:
 
         path: list[str] = []
 
-        current = end
+        current: str | None = end
 
         while current is not None:
 
