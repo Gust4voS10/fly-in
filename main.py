@@ -7,7 +7,7 @@ predicted-usage map incrementally to spread the fleet across alternative
 routes), and finally launches the ``pygame`` renderer to simulate and
 visualize the fleet's movement.
 """
-
+import os
 from algorithms.dijkstra import Dijkstra
 from core.drone import Drone
 from parser.parser import Parser
@@ -27,6 +27,8 @@ def select_map() -> str:
         The path of the selected map file. Falls back to ``"test.txt"``
         if no map files are found at all.
     """
+
+    os.system("clear")
     maps_dir = Path("maps")
     map_files = []
 
@@ -34,12 +36,9 @@ def select_map() -> str:
         for txt_file in sorted(maps_dir.rglob("*.txt")):
             map_files.append(str(txt_file))
 
-    if Path("test.txt").exists():
-        map_files.insert(0, "test.txt")
-
     if not map_files:
         print("Nenhum mapa encontrado!")
-        return "test.txt"
+        return "Erro"
 
     print("\n=== MAPAS DISPONÍVEIS ===\n")
     for idx, map_file in enumerate(map_files, 1):
@@ -61,6 +60,7 @@ def select_map() -> str:
 
 
 def main() -> None:
+
     """Parse a map, compute paths for every drone, and run the simulation.
 
     Raises:
@@ -69,6 +69,10 @@ def main() -> None:
     """
 
     map_file = select_map()
+
+    if map_file == "Erro":
+        return
+
     parser = Parser(map_file)
 
     graph = parser.parse()
@@ -123,4 +127,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Erro: {e}")

@@ -54,6 +54,8 @@ class Parser:
         try:
             with open(self.filename, "r", encoding="utf-8") as file:
                 lines = file.readlines()
+                if not lines:
+                    raise ParserError("Map file is empty")
         except FileNotFoundError as e:
             raise ParserError("Map file not found") from e
 
